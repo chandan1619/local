@@ -1,0 +1,55 @@
+server/data/
+server/volumes/
+server/upload/
+server/.env.dev
+server/.env.prod
+server/__pycache__/*
+server/uploads/*
+server/app/models/__pycache__/*
+server/app/endpoints/__pycache__/*
+server/app/db/__pycache__/*
+server/alembic/__pycache__/*
+server/app/db/__pycache__/*
+server/app/__pycache__/*
+server/alembic/versions/__pycache__/*
+server/.env
+
+
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+client/node_modules
+client/.pnp
+client.pnp.js
+
+# testing
+client/coverage
+
+# production
+client/build
+
+# misc
+client/.DS_Store
+client/.env.local
+client/.env.development.local
+client/.env.test.local
+client/.env.production.local
+client/npm-debug.log*
+client/yarn-debug.log*
+client/yarn-error.log*
+
+client/.env.development
+client/.env.production
+server/app/endpoints/auth/__pycache__/github_auth.cpython-310.pyc
+server/app/utils/__pycache__/secure_token.cpython-310.pyc
+server/app/utils/__pycache__/secure_token.cpython-310.pyc
+server/app/utils/__pycache__/secure_token.cpython-310.pyc
+client/frontend.log
+client/frontend.log
+server/backend.log
+client/frontend.log
+server/app/utils/__init__.py
+client/package-lock.json
+server/app/endpoints/auth/__pycache__/__init__.cpython-39.pyc
+server/app/endpoints/auth/__pycache__/__init__.cpython-310.pyc
+server/app/utils/__pycache__/__init__.cpython-310.pyc
