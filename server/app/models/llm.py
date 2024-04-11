@@ -15,6 +15,7 @@ from llama_index.core import (
     download_loader,
 )
 from llama_index.core.node_parser import SentenceSplitter
+from llama_index.embeddings.google import GooglePaLMEmbedding
 from llama_index.llms.gemini import Gemini
 from llama_index.llms.ollama import Ollama
 from llama_index.llms.openai import OpenAI
@@ -101,7 +102,8 @@ def return_query_engine(collection_name, model_name):
     vector_store = MilvusVectorStore(uri = os.getenv('URI'),token = os.getenv("MILVUS_TOKEN"),collection_name = collection_name, dim=embedding_dim)
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
     llm = llm_model(model_name)
-    service_context = ServiceContext.from_defaults(llm=llm, embed_model="local")
+    embed_model = GooglePaLMEmbedding(model_name= "models/embedding-gecko-001", api_key= os.getenv("GEMINI_API_KEY"))
+    service_context = ServiceContext.from_defaults(llm=llm, embed_model=embed_model)
     index = VectorStoreIndex.from_vector_store(vector_store,service_context=service_context, storage_context=storage_context)
     query_engine = index.as_query_engine(streaming=True,service_context=service_context, similarity_top_k=1)
 
