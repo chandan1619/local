@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 cipher_suite = Fernet(os.getenv("OAUTH_TOKEN_KEY"))
-print(f"{os.getenv('OAUTH_TOKEN_KEY')=}")
+
 
 def encrypt_data(data):
     """Encrypt the data."""

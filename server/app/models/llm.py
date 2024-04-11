@@ -15,7 +15,9 @@ from llama_index.core import (
     download_loader,
 )
 from llama_index.core.node_parser import SentenceSplitter
+from llama_index.llms.gemini import Gemini
 from llama_index.llms.ollama import Ollama
+from llama_index.llms.openai import OpenAI
 from llama_index.readers.jira import JiraReader
 from llama_index.vector_stores.milvus import MilvusVectorStore
 from pymilvus import connections
@@ -71,6 +73,23 @@ def upload_embeddind(pdf_file_path, collection_name):
         raise HTTPException(status_code=500, detail="Failed to process embedding.") from e
 
 
+def llm_model(model_name):
+    """_summary_
+
+    Args:
+        model_name (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    if model_name == "gemini":
+        return Gemini(api_key= os.getenv("GEMINI_API_KEY"))
+    elif model_name == "chatgpt":
+        return OpenAI(api_key = os.getenv("OPENAI_API_KEY"))
+    else:
+        return Ollama(model = model_name,request_timeout=100)
+
+
 def return_query_engine(collection_name, model_name):
     """_summary_
 
@@ -81,7 +100,7 @@ def return_query_engine(collection_name, model_name):
     collection_name = re.sub(r'[^a-zA-Z0-9]', '', collection_name)
     vector_store = MilvusVectorStore(uri = os.getenv('URI'),token = os.getenv("MILVUS_TOKEN"),collection_name = collection_name, dim=embedding_dim)
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
-    llm = Ollama(model=model_name, request_timeout=100)
+    llm = llm_model(model_name)
     service_context = ServiceContext.from_defaults(llm=llm, embed_model="local")
     index = VectorStoreIndex.from_vector_store(vector_store,service_context=service_context, storage_context=storage_context)
     query_engine = index.as_query_engine(streaming=True,service_context=service_context, similarity_top_k=1)
