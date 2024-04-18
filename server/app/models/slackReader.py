@@ -54,7 +54,7 @@ class SlackReader(BasePydanticReader):
     ) -> None:
         """Initialize with parameters."""
 
-        three_days_ago = datetime.now() - timedelta(days=3)
+        three_days_ago = datetime.now() - timedelta(days=30)
 
         # Convert to UNIX timestamp
         earliest_date_timestamp = int(three_days_ago.timestamp())
@@ -167,6 +167,9 @@ class SlackReader(BasePydanticReader):
                         )
                     )
                     time.sleep(int(e.response.headers["retry-after"]))
+                elif e.response["error"] == "thread_not_found":
+                    logger.error(f"thread not found: {e}")
+                    break;
                 else:
                     logger.error(f"Error parsing conversation replies: {e}")
         # print(f"from read_message",messages_text)
@@ -198,6 +201,7 @@ class SlackReader(BasePydanticReader):
                     **conversations_history_kwargs  # type: ignore
                 )
                 conversation_history = result["messages"]
+                # print(f"{conversation_history=}")
                 # Print results
                 logger.info(
                     f"{len(conversation_history)} messages found in {channel_id}"
@@ -265,16 +269,19 @@ class SlackReader(BasePydanticReader):
 
             if channel_content:
                 # print(f"{channel_content=}")
-                final_channel_content[channel_name] = channel_content
-
-
-        results.append(
-            Document(
+                final_channel_content = { "slack channels name" : channel_name, "channel conversation": channel_content }
+                print(f"{channel_name=}")
+                
+                results.append(
+                Document(
                 id_= "slack",
                 text=str(final_channel_content),
-                        metadata={"source": "Slack"},
-            )
-        )
+                        metadata={"slack channel name": channel_name,"source": "Slack"},
+                    )
+                )
+
+
+        
         # print(f"{results=}")
         return results
 

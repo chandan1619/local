@@ -189,6 +189,7 @@ const ChatComponent = ({ id }) => {
                           <BotIcon />
                         </div>
                         <div
+                          style={{ whiteSpace: "pre-wrap" }}
                           ref={messagesEndRef}
                           className="relative ml-3 font-sans text-lg leading-relaxed tracking-wide shadow-md px-4 rounded-xl"
                         >

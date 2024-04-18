@@ -15,6 +15,7 @@ from llama_index.core import (
     download_loader,
 )
 from llama_index.core.node_parser import SentenceSplitter
+from llama_index.core.postprocessor import MetadataReplacementPostProcessor
 from llama_index.embeddings.google import GooglePaLMEmbedding
 from llama_index.llms.gemini import Gemini
 from llama_index.llms.ollama import Ollama
@@ -105,7 +106,15 @@ def return_query_engine(collection_name, model_name):
     embed_model = GooglePaLMEmbedding(model_name= "models/embedding-gecko-001", api_key= os.getenv("GEMINI_API_KEY"))
     service_context = ServiceContext.from_defaults(llm=llm, embed_model=embed_model)
     index = VectorStoreIndex.from_vector_store(vector_store,service_context=service_context, storage_context=storage_context)
-    query_engine = index.as_query_engine(streaming=True,service_context=service_context, similarity_top_k=1)
+
+    
+
+    # The target key defaults to `window` to match the node_parser's default
+    postproc = MetadataReplacementPostProcessor(
+        target_metadata_key="window"
+    )
+    query_engine = index.as_query_engine(streaming=True,service_context=service_context,node_postprocessors = [postproc],
+    alpha=0.5, similarity_top_k=10)
 
     # print(query_engine.get_prompts())
     return query_engine
