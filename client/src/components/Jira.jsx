@@ -1,48 +1,39 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-const Jira = ({ setComp }) => {
+const Jira = ({ fetchJiratoken }) => {
   const navigate = useNavigate();
-  const [runJiraAuth, setRunJiraAuth] = useState(false);
-  const handleLogin = () => {
+  const user = useSelector((state) => state.user.value);
+  const [isdisableJira, setIsdisableJira] = useState(false);
+  const urlParams = new URLSearchParams(window.location.search);
+  const handleJiraLogin = async () => {
     // Redirect to the backend OAuth route for Google login
-    setRunJiraAuth(true);
-    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/jiralogin`;
+    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/jiralogin?user_id=${user?.id}`;
   };
 
-  useEffect(() => {
-    // Function to extract the token and fetch user details
-    if (!runJiraAuth) return;
-    console.log("in effect");
-    const fetchJiratoken = async () => {
-      console.log("fetching slack code");
-      const urlParams = new URLSearchParams(window.location.search);
-      const code = urlParams.get("code"); // Assuming the parameter name is 'token'
-      if (code) {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}/jiralogin/redirect?code=${code}`,
-            {
-              method: "GET",
-            }
-          );
+  const buttonStatus = async () => {
+    const response = await fetch(
+      `${process.env.REACT_APP_BACKEND_URL}/checkjiratoken?user_id=${user?.id}&source_type=jira`
+    );
 
-          const data = await response.json();
-
-          // Dispatching user data to Redux stor
-        } catch (error) {
-          console.error("Error fetching user details:", error);
-        }
-      }
-    };
-
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has("code")) {
-      fetchJiratoken(); // Call the function if token is present
-      navigate("/home");
+    const data = await response.json();
+    if (data === true) {
+      setIsdisableJira(data);
     }
-  }, [navigate]);
+  };
+  useEffect(() => {
+    buttonStatus();
+  }, []);
+
+  useEffect(() => {
+    if (urlParams.has("code") && urlParams.get("state") == user?.id) {
+      fetchJiratoken();
+      navigate("/home");
+      setTimeout(buttonStatus, 3000);
+    }
+  }, [window.location.search]);
   return (
     <div class="mx-auto mt-10 max-w-sm">
       <div class="rounded-lg bg-white p-6 shadow-lg">
@@ -100,8 +91,12 @@ const Jira = ({ setComp }) => {
         </div>
         <div class="flex content-center justify-start align-middle">
           <button
-            onClick={handleLogin}
+            disabled={isdisableJira}
+            onClick={handleJiraLogin}
             class="mt-4 flex items-center justify-center gap-x-2 rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+            style={{
+              backgroundColor: isdisableJira ? "#9CA3AF" : "rgb(59 130 246)",
+            }}
           >
             <p>Connect</p>
 

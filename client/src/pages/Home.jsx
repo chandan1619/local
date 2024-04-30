@@ -42,7 +42,7 @@ function Home() {
     <div className="">
       <Header />
       <div className="flex flex-row gap-4 m-10  items-center flex-wrap">
-        <Integrations/>
+        <Integrations />
         <div className="flex flex-row items-center w-screen justify-around">
           <ProjectCreate projectupdate={fetchProjects} />
           <button
@@ -82,7 +82,7 @@ function Home() {
             to={`/chat/integrations`}
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline"
           >
-            Chat With Integrations
+            Centralized chat
           </Link>
         </div>
       </div>

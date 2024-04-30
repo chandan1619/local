@@ -35,7 +35,7 @@ def create_document(project_id, filename: str, path: str):
         session.flush()  # Use flush here to ensure the document ID is available without committing
 
         # Call upload_embedding and potentially raise an exception if it fails
-        chunk_ids = upload_embeddind(path, f"project{project_id}")
+        chunk_ids = upload_embeddind(path, f"integrations")
         
         # If upload_embedding succeeds, associate chunks with the document
         

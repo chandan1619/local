@@ -4,6 +4,7 @@ import os
 import uvicorn
 from app.db.database import engine
 from app.endpoints.auth.github_auth import router as github_auth_router
+from app.endpoints.auth.jira_auth import router as jira_auth_router
 from app.endpoints.auth.slack_auth import router as slack_auth_router
 from app.endpoints.chat import router as chat_router
 from app.endpoints.document import router as document_router
@@ -53,6 +54,7 @@ app.include_router(models_router)
 app.include_router(slack_auth_router)
 app.include_router(github_auth_router)
 app.include_router(pulldata_router)
+app.include_router(jira_auth_router)
 
 
 

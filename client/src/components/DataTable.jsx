@@ -81,6 +81,9 @@ const DataTable = ({ projects }) => {
                         <Link
                           to={`/chat/${project.id}`}
                           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline"
+                          style={{
+                            backgroundColor: "#9CA3AF",
+                          }}
                         >
                           Chat Now
                         </Link>

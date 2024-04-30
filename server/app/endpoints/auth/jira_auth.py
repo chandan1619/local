@@ -1,3 +1,4 @@
+import base64
 import os
 import uuid
 
@@ -15,25 +16,18 @@ router = APIRouter()
 
 
 @router.get('/jiralogin')
-def github_login():
+def github_login(user_id:str):
     """_summary_
 
     Returns:
         _type_: _description_
     """
-    return RedirectResponse(f"""https://auth.atlassian.com/authorize?
-                            audience=api.atlassian.com&
-                            client_id={os.getenv("JIRA_CLIENT_ID")}&
-                            scope=REQUESTED_SCOPE_ONE%20REQUESTED_SCOPE_TWO&
-                            redirect_uri={os.getenv("FRONTEND_URL")}&
-                            state=YOUR_USER_BOUND_VALUE&
-                            response_type=code&
-                            prompt=consent""")
+    return RedirectResponse(f"""https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id={os.getenv("JIRA_CLIENT_ID")}&scope=read:jira-work%20read:jira-user&redirect_uri={os.getenv("FRONTEND_URL")}&state={user_id}&response_type=code&prompt=consent""")
 
 
 
-@router.get('/githublogin/redirect')
-def github_redirect(code:str, user_id:str):
+@router.get('/jiralogin/redirect')
+def jira_redirect(code:str, user_id:str):
     """_summary_
 
     Args:
@@ -47,12 +41,14 @@ def github_redirect(code:str, user_id:str):
         "client_id" : os.getenv("JIRA_CLIENT_ID"),
         "client_secret": os.getenv("JIRA_CLIENT_SECRET"),
         "code": code,
-        "redirect_url":os.getenv("FRONTEND_URL")
+        "redirect_uri":os.getenv("FRONTEND_URL"),
+        "grant_type": "authorization_code"
 
     }
 
     response = requests.post("https://auth.atlassian.com/oauth/token",headers=header,data = body_args, timeout=20)
 
+    print(f"{response.json()=}")
     
     if response.status_code == 200:
         print(f"{response.json()=}")
@@ -63,7 +59,8 @@ def github_redirect(code:str, user_id:str):
             session.add(datasource)
             session.commit()
         
-        userdatasource = UserDataSource(user_id = user_id,data_source_id = datasource.id, credentials = encrypt_data(response.json().get("access_token")))
+        encrypted_token,_= base64.b64encode(encrypt_data(response.json().get("access_token"))).decode('utf-8'),response.json().get("access_token")
+        userdatasource = UserDataSource(user_id = user_id,data_source_id = datasource.id, credentials = encrypted_token)
         session.add(userdatasource)
         session.commit()
         return JSONResponse(status_code = response.status_code, content="got the access token")
@@ -74,7 +71,7 @@ def github_redirect(code:str, user_id:str):
 
     
 @router.get('/checkjiratoken')
-def github_token(user_id:str):
+def jira_token(user_id:str, source_type :str):
     """_summary_
 
     Args:
@@ -83,7 +80,7 @@ def github_token(user_id:str):
     Returns:
         _type_: _description_
     """
-    token_data = session.query(UserDataSource).filter_by(user_id = user_id).first()
+    token_data = session.query(UserDataSource).join(DataSource).filter(DataSource.type == source_type,UserDataSource.user_id == user_id).first()
 
     if token_data is None:
         return JSONResponse(status_code=200, content = False)

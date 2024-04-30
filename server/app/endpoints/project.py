@@ -120,7 +120,7 @@ def read_projects(id: str, skip: int = 0, limit: int = 100):
             ProjectBase(
                 id=project.id,
                 name=project.name,
-                email=None,
+                email= None,
                 documents=[DocumentBase(id=document.id, filename=document.filename) for document in project.documents]
             )
             for project in projects
